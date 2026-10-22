@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from math import isfinite
 from threading import RLock
 from typing import FrozenSet
 
@@ -73,7 +74,7 @@ class CommandGate:
         self._state = AuthorityState.LOCKED
         self._generation = 0
         self._seen_request_ids: set[str] = set()
-        self._allowlist = frozenset(allowlist or self.DEFAULT_ALLOWLIST)
+        self._allowlist = frozenset(self.DEFAULT_ALLOWLIST if allowlist is None else allowlist)
 
     def snapshot(self) -> GateSnapshot:
         with self._lock:
@@ -123,7 +124,14 @@ class CommandGate:
                 return deny(DenialReason.INVALID_ID)
             if request.request_id in self._seen_request_ids:
                 return deny(DenialReason.DUPLICATE)
-            if not isinstance(now, (int, float)) or not isinstance(request.expires_at, (int, float)):
+            if (
+                isinstance(now, bool)
+                or isinstance(request.expires_at, bool)
+                or not isinstance(now, (int, float))
+                or not isinstance(request.expires_at, (int, float))
+                or not isfinite(now)
+                or not isfinite(request.expires_at)
+            ):
                 return deny(DenialReason.EXPIRED)
             if request.expires_at <= now or request.expires_at <= 0:
                 return deny(DenialReason.EXPIRED)
