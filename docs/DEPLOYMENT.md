@@ -13,6 +13,12 @@ Planning and scaffold stage. No deployment or flight test is claimed complete.
 5. **Hardware-in-the-loop:** only after review of firmware versions, interfaces, and safety evidence.
 6. **Controlled field evaluation:** requires a separate documented go/no-go review, applicable legal approvals, and verified emergency procedures.
 
+## MAVLink transport
+
+Use the [MAVLink routing guide](MAVLINK_ROUTING.md). Start with localhost-only SITL endpoints. MAVLink Router is the planned distribution service; MAVProxy is an optional diagnostic alternative. Only one process may own a given serial connection. Do not give an AI tool an unrestricted alternate MAVLink output, and do not treat router setup as proof that commands pass through the authority gate.
+
+The example configuration under `config/mavlink-router/` is a template, not a tested deployment configuration. Verify syntax, endpoint direction and port ownership against the installed versions before launch. No serial device, remote host, or real vehicle is configured by default.
+
 ## Default configuration
 
 - Environment: simulation.
