@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from enum import Enum
 from math import isfinite
 from threading import RLock
-from typing import FrozenSet
 
 
 class AuthorityState(str, Enum):
@@ -65,11 +64,11 @@ class CommandGate:
     It intentionally has no method to send commands or activate spray hardware.
     """
 
-    DEFAULT_ALLOWLIST: FrozenSet[str] = frozenset(
+    DEFAULT_ALLOWLIST: frozenset[str] = frozenset(
         {"request_status", "propose_target", "propose_bounded_move", "request_land"}
     )
 
-    def __init__(self, allowlist: FrozenSet[str] | None = None) -> None:
+    def __init__(self, allowlist: frozenset[str] | None = None) -> None:
         self._lock = RLock()
         self._state = AuthorityState.LOCKED
         self._generation = 0
