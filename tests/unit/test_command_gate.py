@@ -102,3 +102,21 @@ def test_stale_generation_is_rejected_after_reenable() -> None:
     decision = gate.validate(request(old_generation), now=10.0)
     assert not decision.allowed
     assert decision.reason == "stale_authority_generation"
+
+
+def test_rejects_non_finite_timestamps() -> None:
+    import math
+
+    gate = CommandGate()
+    generation = enable(gate)
+    assert not gate.validate(request(generation, expires_at=math.nan), now=10.0).allowed
+    assert not gate.validate(request(generation, request_id="inf", expires_at=math.inf), now=10.0).allowed
+    assert not gate.validate(request(generation, request_id="nan-now"), now=math.nan).allowed
+
+
+def test_explicit_empty_allowlist_allows_nothing() -> None:
+    gate = CommandGate(allowlist=frozenset())
+    generation = enable(gate)
+    decision = gate.validate(request(generation), now=10.0)
+    assert not decision.allowed
+    assert decision.reason == "command_not_allowlisted"
